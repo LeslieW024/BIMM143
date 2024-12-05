@@ -3,7 +3,7 @@
 This repo is for my UCSD bioinformatics class.
 
 
-Classworks for BIMM143 Fall [[BIMM143 FA24](https://bioboot.github.io/bimm143_F24/)
+Classworks for BIMM143 Fall [BIMM143 FA24](https://bioboot.github.io/bimm143_F24/)
 
 -   Class 04: [Bioinformatics data analysis with R](https://github.com/LeslieW024/BIMM143/tree/main/Class04)
 

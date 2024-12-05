@@ -1,0 +1,177 @@
+---
+title: "Lab06"
+author: "Xiaoyan Wang(A1645055)"
+format: pdf
+editor: visual
+---
+
+This week we are introducing **R functions** and how to write our own functions.
+
+```{r}
+# Example input vectors to start with
+student1 <- c(100, 100, 100, 100, 100, 100, 100, 90)
+student2 <- c(100, NA, 90, 90, 90, 90, 97, 80)
+student3 <- c(90, NA, NA, NA, NA, NA, NA, NA)
+```
+
+## Questions to answer:
+
+**Q1.** Write a function grade() to determine an overall grade from a vector of student homework assignment scores dropping the lowest single score. If a student misses a homework (i.e. has an NA value) this can be used as a score to be potentially dropped. Your final function should be adquately explained with code comments and be able to work on an example class gradebook such as this one in CSV format: “https://tinyurl.com/gradeinput” \[3pts\]
+
+**Student 1:**
+
+Initial grade:
+
+```{r}
+#Stright forward mean()
+mean(student1)
+```
+
+corrected grade:
+
+```{r}
+#Drop the lowest score
+
+##Find which element of the vector is the lowest
+lowest_score_pos <- which.min(student1)
+
+##Exclude this lowest score from mean
+new_student1 <- student1[-lowest_score_pos]
+
+##Calculate new mean()
+mean(new_student1)
+```
+
+**Student 2:**
+
+Initial grade:
+
+```{r}
+#Stright forward mean()
+mean(student2, na.rm=TRUE)
+
+```
+
+corrected grade:
+
+```{r}
+#Drop the lowest score
+new_student2 <- student2
+
+##Find NA
+is.na(new_student2)
+which(is.na(new_student2))
+
+##Replace NA with 0
+new_student2[is.na(new_student2)] <- 0
+mean(new_student2[-which.min(new_student2)])
+```
+
+**Student 3:**
+
+Initial grade:
+
+```{r}
+#Stright forward mean() 
+mean(student3, na.rm=TRUE) 
+```
+
+corrected grade:
+
+```{r}
+new_student3 <- student3
+new_student3[is.na(new_student3)] <- 0
+mean(new_student3[-which.min(new_student3)])
+```
+
+**Creating the function**
+
+Take the snippet and turn into a function
+
+Every function has 3 parts
+
+-   A name: 'grade()'
+
+-   Input arguments: vector of student scores
+
+-   The body: our working snippet of code
+
+Using RStudio instill select 'Code \> Extract Function'
+
+```{r}
+#' Calculate the average score for a veactor of homework scores, dropping the lowest score.
+#' Missing values will be treated as 0.
+#' @param x A numeric vector of homework scores
+#'
+#' @return Average score
+#' @export
+#'
+#' @examples
+#' student <- c(100,NA,90,96)
+#' grade(student)
+#' 
+grade <- function(x) {
+  #mask NA with 0, treat missing values as 0
+  x[is.na(x)] <- 0 
+  #Exclude the lowest score from mean
+  mean(x[-which.min(x)]) 
+}
+```
+
+**Try grade()**
+
+```{r}
+grade(student1)
+grade(student2)
+grade(student3)
+```
+
+**Q2.** Using your grade() function and the supplied gradebook, Who is the top scoring student overall in the gradebook? \[3pts\]
+
+```{r}
+#read file
+url<-"https://tinyurl.com/gradeinput"
+gradebook <- read.csv(url, row.names = 1)
+```
+
+```{r}
+#apply the grade function to the gradebook
+results <-apply(gradebook,1,grade)
+#Arremhe scores from highest to lowest
+sort(results, decreasing=TRUE)
+```
+
+```{r}
+#Finding the top student
+which.max(results)
+```
+
+**Q3.** From your analysis of the gradebook, which homework was toughest on students (i.e. obtainedthe lowest scores overall? \[2pts\]
+
+```{r}
+#calculate base on lowest mean
+avg_score<-apply(gradebook,2,mean, na.rm= TRUE)
+avg_score
+which.min(avg_score)
+```
+
+```{r}
+#calculate base on lowest median
+med_score<-apply(gradebook,2,median, na.rm= TRUE)
+med_score
+which.min(med_score)
+```
+
+```{r}
+boxplot(gradebook)
+```
+
+**Q4.** Optional Extension: From your analysis of the gradebook, which homework was most predictive of overall score (i.e. highest correlation with average grade score)? \[1pt\]
+
+```{r}
+gradebook_copy <- gradebook
+gradebook_copy[is.na(gradebook_copy)]<-0
+which.max(apply(gradebook_copy,2,cor,results))
+```
+
+**Q5.** Make sure you save your Quarto document and can click the “Render” (or Rmarkdown”Knit”) button to generate a PDF format report without errors. Finally, submit your PDF to gradescope. \[1pt\]

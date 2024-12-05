@@ -1,0 +1,30 @@
+---
+title: "Class16"
+author: "Xiaoyan Wang(A16454055)"
+format: pdf
+editor: visual
+---
+
+## 
+
+chmod 400 "bioinf_lw.pem"
+
+ssh -i "\~/Download/bioinf_lw.pem" ubuntu\@ec2-44-243-95-87.us-west-2.compute.amazonaws.com
+
+**Q**. What does the star character accomplish here? Ask Barry, or your class neighbor, if you are not sure!
+
+**Q**. How many sequences are in this `mouse.1.protein.faa` file? Hint: Try using **grep** to figure this out…
+
+3 sequences?
+
+**Q**. What happens if you run the above command without the `> mm-first.fa` part?
+
+it listed the output but did not copied it anywhere
+
+**Q**. What happens if you were to use two ‘\>’ symbols (i.e. `>> mm-first.fa`)?
+
+It copied the output twice into the mm-first.fa file
+
+```         
+scp -i ~/Downloads/"bioinf_lw.pem" ubuntu@ec2-44-243-95-87.us-west-2.compute.amazonaws.com:~/work/mm-second.x.zebrafish.tsv .
+```

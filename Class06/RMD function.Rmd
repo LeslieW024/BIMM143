@@ -1,0 +1,52 @@
+---
+title: "R Functions"
+author: "Xiaoyan Wang"
+date: "2024-10-21"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Q6. How would you generalize the original code above to work with any set of input protein structures?
+
+```{r}
+library(bio3d)
+```
+
+```{r}
+#' Read protein's PDB data to plot a protein-drug interaction 
+#' plot indicating the relationship between protein 
+#' residue and bfactor.
+#' 
+#'
+#' @param x a string of 4 characters long PDB identification
+#'  code/accession input is required. This code need to be 
+#'  valid on PDB.
+#'
+#' @return A plot
+#' @export
+#'
+#' @examples
+#' protein.interaction("4AKE")
+#' 
+protein.interaction <- function(x) {
+  # read pdb data from the protein code and store it in a variavle
+  protein<-read.pdb(x)
+  # trim the chain A from the pdb data
+  chainA <- trim.pdb(protein, chain="A", elety="CA")
+  # look at the atom b
+  b <- chainA$atom$b
+  #make the plot
+  plotb3(b, sse=chainA, typ="l", ylab="Bfactor")
+}
+```
+
+**Demonstration**
+```{r}
+protein.interaction("4AKE")
+protein.interaction("1AKE")
+protein.interaction("1E4Y")
+```
+

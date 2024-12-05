@@ -1,0 +1,33 @@
+---
+title: "Class12"
+author: "Xiaoyan Wang(A16454055)"
+format: pdf
+editor: visual
+---
+
+## Section 1. Proportion og G/G in a population
+
+```{r}
+mxl <- read.csv("373531-SampleGenotypes-Homo_sapiens_Variation_Sample_rs8067378.csv")
+head(mxl)
+```
+
+```{r}
+table(mxl$Genotype..forward.strand.)/nrow(mxl)*100
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+expr <- read.table("https://bioboot.github.io/bimm143_F24/class-material/rs8067378_ENSG00000172057.6.txt")
+head(expr)
+```
+
+```{r}
+ggplot(expr) + aes(geno,exp, fill=geno) + geom_boxplot(notch = TRUE) + 
+  ylab("Expression") + xlab("Genotype") 
+```
+
+It seems like that as G/G genotype presentes, the expression level decreases and the expression level increases when A/A presents. Therefore, there is likely that the expression of ORMDL3 is higher when A allele presents, compare to G.

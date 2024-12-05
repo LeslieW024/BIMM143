@@ -1,0 +1,13 @@
+This is a simple text editor called nano.
+Some key unix cmds so far:
+
+pwd: print working directory
+cd: change direction
+ls: listing files
+mkdir: make a new directory
+nano: a basic text editor
+
+short cuts:
+..: down one level
+~: home area shortcut
+

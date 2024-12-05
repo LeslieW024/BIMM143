@@ -1,0 +1,242 @@
+---
+title: "Class 9:Structural Bioinformatics (Pt. 1)"
+author: "Xiaoyan Wang(A16454055)"
+format: pdf
+editor: visual
+---
+
+## PDB statistics
+
+The main database for structural data is called the PDB(Protein Data Bank). Lets see what it contains:
+
+Data from: <https://www.rcsb.org/stats/summary>
+
+```{r}
+pdbData<- read.csv("Data Export Summary.csv")
+head(pdbData)
+```
+
+**Q1: What percentage of structures in the PDB are solved by X-Ray and Electron Microscopy?**
+
+```{r}
+as.numeric(sub(",", "" , pdbData$Total))
+```
+
+```{r}
+# make this into a function
+x<- pdbData$Total
+RmvComma <- function(x) {
+  sub(",", "" , x)
+}
+```
+
+```{r}
+#test
+as.numeric(RmvComma(x))
+```
+
+```{r}
+apply(pdbData, 2, RmvComma)
+```
+
+```{r}
+#Alternatively...
+#install.packages("tidyverse")
+#install.packages("readr")
+library(readr)
+pdbData<- read_csv("Data Export Summary.csv")
+head(pdbData)
+```
+
+```{r}
+xDivy <- function(pdbData) {
+  sum(x)/sum(y)*100
+}
+```
+
+```{r}
+x<-pdbData$'X-ray'
+y<-pdbData$Total
+xDivy()
+```
+
+```{r}
+x<-pdbData$'EM'
+y<-pdbData$Total
+xDivy()
+```
+
+**Q2: What proportion of structures in the PDB are protein?**
+
+```{r}
+# Extract rows where "Molecular Type" contains "protein"
+protein_rows <- pdbData[grepl("Protein", pdbData$`Molecular Type`, ignore.case = TRUE), ]
+x <- protein_rows$Total
+y <- pdbData$Total
+xDivy()
+```
+
+**Q3:** Type HIV in the PDB website search box on the home page and determine how many HIV-1 protease structures are in the current PDB?
+
+This query matches 4,563 structures.
+
+## The PDB format
+
+##Mol\*
+
+We will use the PDB code: 1HSG
+
+![](1HSG.png)
+
+Figure 1. A overview of 1HSG
+
+![](images/clipboard-2835514363.png)
+
+Figure 2. Ligand shown in spacefill
+
+![](images/clipboard-2940913789.png)
+
+Figure 3. Focus of D25 position(shown in pink)
+
+**Q4**: Water molecules normally have 3 atoms. Why do we see just one atom per water molecule in this structure?
+
+The one "atom" here represents a residue, which is HOH for water. In other words, the 3 atoms of water is considered as one residue and the 2 hydrogen were hidden to not be presented.
+
+**Q5**: There is a critical “conserved” water molecule in the binding site. Can you identify this water molecule? What residue number does this water molecule have
+
+308
+
+**Q6**: Generate and save a figure clearly showing the two distinct chains of HIV-protease along with the ligand. You might also consider showing the catalytic residues ASP 25 in each chain and the critical water (we recommend *“Ball & Stick”* for these side-chains). Add this figure to your Quarto document.
+
+![](images/clipboard-1132251585.png)
+
+Figure 4. A representation of HOH 308
+
+## Introduction to Bio3D in R
+
+```{r}
+library(bio3d)
+```
+
+```{r}
+pdb <- read.pdb("1hsg")
+pdb
+```
+
+**Q7:** How many amino acid residues are there in this pdb object?
+
+198
+
+**Q8:** Name one of the two non-protein residues?
+
+MK1
+
+**Q9:** How many protein chains are in this structure?
+
+2
+
+```{r}
+attributes(pdb)
+```
+
+```{r}
+head(pdb$atom)
+```
+
+```{r}
+adk <- read.pdb("6s36")
+adk
+```
+
+```{r}
+# Perform flexiblity prediction
+m <- nma(adk)
+plot(m)
+```
+
+```{r}
+mktrj(m, file="adk_m7.pdb")
+```
+
+### Comparative structure analysis of Adenylate Kinase
+
+```{r}
+# Install packages in the R console NOT your Rmd/Quarto file
+
+#install.packages("bio3d")
+#install.packages("devtools")
+#install.packages("BiocManager")
+
+#BiocManager::install("msa")
+#devtools::install_bitbucket("Grantlab/bio3d-view")
+```
+
+-   **Q10.** Which of the packages above is found only on BioConductor and not CRAN?
+
+    msa
+
+-   **Q11.** Which of the above packages is not found on BioConductor or CRAN?:
+
+    bio3d-view
+
+-   **Q12.** True or False? Functions from the devtools package can be used to install packages from GitHub and BitBucket?
+
+    TRUE
+
+    ```{r}
+    library(bio3d)
+    aa <- "1ake_A"
+    get.seq(aa)
+    ```
+
+**Q13.** How many amino acids are in this sequence, i.e. how long is this sequence?
+
+214
+
+```{r}
+hits <- NULL
+hits$pdb.id <- c('1AKE_A','6S36_A','6RZE_A','3HPR_A','1E4V_A','5EJE_A','1E4Y_A','3X2S_A','6HAP_A','6HAM_A','4K46_A','3GMT_A','4PZL_A')
+```
+
+```{r}
+# Download releated PDB files
+files <- get.pdb(hits$pdb.id, path="pdbs", split=TRUE, gzip=TRUE)
+```
+
+```{r}
+# Align releated PDBs
+pdbs <- pdbaln(files, fit = TRUE, exefile="msa")
+```
+
+```{r}
+# Vector containing PDB codes for figure axis
+ids <- basename.pdb(pdbs$id)
+
+# Draw schematic alignment
+#plot(pdbs, labels=ids)
+# Error: Figure margins too large
+```
+
+```{r}
+anno <- pdb.annotate(ids)
+unique(anno$source)
+
+head(anno)
+```
+
+```{r}
+# Perform PCA
+pc.xray <- pca(pdbs)
+plot(pc.xray)
+```
+
+```{r}
+# Calculate RMSD
+rd <- rmsd(pdbs)
+
+# Structure-based clustering
+hc.rd <- hclust(dist(rd))
+grps.rd <- cutree(hc.rd, k=3)
+
+plot(pc.xray, 1:2, col="grey50", bg=grps.rd, pch=21, cex=1)
+```
